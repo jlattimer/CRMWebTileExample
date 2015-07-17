@@ -22,21 +22,24 @@ namespace CRMWebTileService.Controllers
             using (orgService = new OrganizationService(connection))
             {
                 //Query the CRM data based on the user id being passed in
-                FetchExpression query = new FetchExpression(@"<fetch distinct='true' aggregate='true' >
-                                                                  <entity name='opportunity' >
-                                                                    <attribute name='opportunityid' alias='NewOppCount' aggregate='count' />
-                                                                    <attribute name='ownerid' alias='ownerid' groupby='true' />              
-                                                                    <filter type='and' >
-                                                                      <condition attribute='ownerid' operator='eq' value='" + userId + @"' />
-                                                                      <condition attribute='createdon' operator='today' />
-                                                                    </filter>
-                                                                  </entity>
-                                                                </fetch>");
+                FetchExpression query = new FetchExpression(@"
+                    <fetch distinct='true' aggregate='true' >
+                        <entity name='opportunity' >
+                        <attribute name='opportunityid' alias='NewOppCount' aggregate='count' />
+                        <attribute name='ownerid' alias='ownerid' groupby='true' />              
+                        <filter type='and' >
+                            <condition attribute='ownerid' operator='eq' value='" + userId + @"' />
+                            <condition attribute='createdon' operator='today' />
+                        </filter>
+                        </entity>
+                    </fetch>");
 
                 //Get the result values for output
                 EntityCollection results = orgService.RetrieveMultiple(query);
-                string username = (string)results.Entities[0].GetAttributeValue<AliasedValue>("ownerid_owneridname").Value;
-                int count = (int)results.Entities[0].GetAttributeValue<AliasedValue>("NewOppCount").Value;
+                string username = 
+                    (string)results.Entities[0].GetAttributeValue<AliasedValue>("ownerid_owneridname").Value;
+                int count = 
+                    (int)results.Entities[0].GetAttributeValue<AliasedValue>("NewOppCount").Value;
 
                 NewOppCount result = new NewOppCount
                 {
